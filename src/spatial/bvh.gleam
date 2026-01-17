@@ -5,7 +5,6 @@
 
 import gleam/float
 import gleam/list
-import gleam/option.{type Option, None, Some}
 import spatial/collider.{type Collider}
 import vec/vec3.{type Vec3}
 import vec/vec3f
@@ -35,10 +34,10 @@ pub opaque type BVH(a) {
 pub fn from_items(
   items: List(#(Vec3(Float), a)),
   max_leaf_size max_leaf_size: Int,
-) -> Option(BVH(a)) {
+) -> Result(BVH(a), Nil) {
   case items {
-    [] -> None
-    _ -> Some(build_bvh(items, max_leaf_size))
+    [] -> Error(Nil)
+    _ -> Ok(build_bvh(items, max_leaf_size))
   }
 }
 
