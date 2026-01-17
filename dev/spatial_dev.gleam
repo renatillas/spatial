@@ -1,15 +1,15 @@
 // Spatial Library Performance Benchmark
 // Run with: gleam run -m dev/spatial_dev
 
-import bvh
-import collider
 import gleam/int
 import gleam/io
 import gleam/list
 import gleam/option
 import gleamy/bench
-import grid
-import octree
+import spatial/bvh
+import spatial/collider
+import spatial/grid
+import spatial/octree
 import vec/vec3
 
 pub fn main() {

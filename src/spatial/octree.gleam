@@ -3,9 +3,9 @@
 //// An octree divides 3D space into 8 octants recursively, enabling efficient
 //// spatial queries for nearby objects.
 
-import collider.{type Collider}
 import gleam/list
 import gleam/option.{type Option, None, Some}
+import spatial/collider.{type Collider}
 import vec/vec3.{type Vec3}
 import vec/vec3f
 

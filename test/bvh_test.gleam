@@ -1,7 +1,7 @@
-import bvh
-import collider
 import gleam/list
 import gleam/option
+import spatial/bvh
+import spatial/collider
 import vec/vec3
 
 pub fn from_empty_items_test() {

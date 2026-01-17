@@ -1,5 +1,5 @@
-import collider
 import quaternion
+import spatial/collider
 import vec/vec3
 
 pub fn box_creation_test() {

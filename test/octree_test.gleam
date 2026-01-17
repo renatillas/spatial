@@ -1,6 +1,6 @@
-import collider
 import gleam/list
-import octree
+import spatial/collider
+import spatial/octree
 import vec/vec3
 
 pub fn new_octree_test() {

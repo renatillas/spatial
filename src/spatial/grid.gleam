@@ -4,11 +4,11 @@
 //// which is effectively O(1) in practice. At 1 million cells, operations take only
 //// ~5 steps. Excellent for uniformly distributed objects like particles or crowds.
 
-import collider.{type Collider}
 import gleam/dict.{type Dict}
 import gleam/float
 import gleam/list
 import gleam/result
+import spatial/collider.{type Collider}
 import vec/vec3.{type Vec3}
 import vec/vec3f
 

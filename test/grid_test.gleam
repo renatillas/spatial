@@ -1,6 +1,6 @@
-import collider
 import gleam/list
-import grid
+import spatial/collider
+import spatial/grid
 import vec/vec3
 
 pub fn new_grid_test() {

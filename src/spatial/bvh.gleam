@@ -3,10 +3,10 @@
 //// BVH is a tree structure where each node contains a bounding box that
 //// encompasses all its children. Excellent for dynamic scenes and collision detection.
 
-import collider.{type Collider}
 import gleam/float
 import gleam/list
 import gleam/option.{type Option, None, Some}
+import spatial/collider.{type Collider}
 import vec/vec3.{type Vec3}
 import vec/vec3f
 
