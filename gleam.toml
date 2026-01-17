@@ -1,0 +1,14 @@
+name = "spatial"
+version = "1.0.0"
+description = "Spatial partitioning data structures for efficient 3D queries: octrees, colliders, and spatial algorithms"
+licences = ["MIT"]
+repository = { type = "github", user = "renatillas", repo = "spatial" }
+
+[dependencies]
+gleam_stdlib = ">= 0.44.0 and < 2.0.0"
+vec = ">= 3.0.0 and < 4.0.0"
+quaterni = { path = "../quaterni" }
+
+[dev-dependencies]
+gleeunit = ">= 1.0.0 and < 2.0.0"
+gleamy_bench = ">= 0.6.0 and < 1.0.0"
