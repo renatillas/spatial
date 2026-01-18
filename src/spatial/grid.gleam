@@ -9,6 +9,7 @@ import gleam/float
 import gleam/list
 import gleam/result
 import spatial/collider.{type Collider}
+import spatial/internal/ffi
 import vec/vec3.{type Vec3}
 import vec/vec3f
 
@@ -130,15 +131,17 @@ pub fn query_radius(
   radius: Float,
 ) -> List(#(Vec3(Float), a)) {
   let cells_to_check = get_cells_in_radius(center, radius, grid.cell_size)
+  let radius_sq = radius *. radius
 
   // Single fold instead of flat_map + filter to avoid intermediate lists
+  // Use distance_squared for better performance
   list.fold(cells_to_check, [], fn(acc, cell_key) {
     case dict.get(grid.cells, cell_key) {
       Error(_) -> acc
       Ok(items) ->
         list.fold(items, acc, fn(acc_inner, item_pair) {
           let #(pos, _) = item_pair
-          case vec3f.distance(center, pos) <=. radius {
+          case ffi.distance_squared(center, pos) <=. radius_sq {
             True -> [item_pair, ..acc_inner]
             False -> acc_inner
           }

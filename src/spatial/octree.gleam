@@ -6,6 +6,7 @@
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import spatial/collider.{type Collider}
+import spatial/internal/ffi
 import vec/vec3.{type Vec3}
 import vec/vec3f
 
@@ -204,11 +205,12 @@ pub fn query_radius(
   let half_extents = vec3.Vec3(radius, radius, radius)
   let query_bounds = collider.box_from_center(center, half_extents)
 
-  // Query the box, then filter by actual distance
+  // Query the box, then filter by actual distance (using distance_squared for performance)
+  let radius_sq = radius *. radius
   query(tree, query_bounds)
   |> list.filter(fn(item_pair) {
     let #(pos, _) = item_pair
-    vec3f.distance(center, pos) <=. radius
+    ffi.distance_squared(center, pos) <=. radius_sq
   })
 }
 

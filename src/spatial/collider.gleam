@@ -6,6 +6,7 @@
 import gleam/float
 import gleam/list
 import quaternion
+import spatial/internal/ffi
 import vec/vec3.{type Vec3}
 import vec/vec3f
 
@@ -117,15 +118,10 @@ pub fn cylinder(
 /// **Time Complexity**: O(1) - constant time geometric calculation.
 pub fn contains_point(collider: Collider, point: Vec3(Float)) -> Bool {
   case collider {
-    Box(min, max) ->
-      point.x >=. min.x
-      && point.x <=. max.x
-      && point.y >=. min.y
-      && point.y <=. max.y
-      && point.z >=. min.z
-      && point.z <=. max.z
+    Box(min, max) -> ffi.box_contains_point(min, max, point)
 
-    Sphere(center, radius) -> vec3f.distance(center, point) <=. radius
+    Sphere(center, radius) ->
+      ffi.distance_squared(center, point) <=. radius *. radius
 
     Capsule(start, end, radius) -> {
       let distance = point_to_line_segment_distance(point, start, end)
@@ -152,22 +148,15 @@ pub fn contains_point(collider: Collider, point: Vec3(Float)) -> Bool {
 /// **Time Complexity**: O(1) - constant time geometric calculation.
 pub fn intersects(a: Collider, b: Collider) -> Bool {
   case a, b {
-    // Box-Box intersection (AABB test)
+    // Box-Box intersection (AABB test) - optimized with FFI
     Box(min_a, max_a), Box(min_b, max_b) ->
-      min_a.x <=. max_b.x
-      && max_a.x >=. min_b.x
-      && min_a.y <=. max_b.y
-      && max_a.y >=. min_b.y
-      && min_a.z <=. max_b.z
-      && max_a.z >=. min_b.z
+      ffi.box_intersects(min_a, max_a, min_b, max_b)
 
-    // Sphere-Sphere intersection
-    Sphere(center_a, radius_a), Sphere(center_b, radius_b) -> {
-      let distance = vec3f.distance(center_a, center_b)
-      distance <=. { radius_a +. radius_b }
-    }
+    // Sphere-Sphere intersection - optimized with FFI
+    Sphere(center_a, radius_a), Sphere(center_b, radius_b) ->
+      ffi.sphere_intersects(center_a, radius_a, center_b, radius_b)
 
-    // Box-Sphere intersection (order doesn't matter)
+    // Box-Sphere intersection (order doesn't matter) - optimized
     Box(min, max), Sphere(center, radius)
     | Sphere(center, radius), Box(min, max)
     -> {
@@ -175,7 +164,7 @@ pub fn intersects(a: Collider, b: Collider) -> Bool {
       let closest_y = float.clamp(center.y, min.y, max.y)
       let closest_z = float.clamp(center.z, min.z, max.z)
       let closest = vec3.Vec3(closest_x, closest_y, closest_z)
-      vec3f.distance(center, closest) <=. radius
+      ffi.distance_squared(center, closest) <=. radius *. radius
     }
 
     // Capsule-Capsule intersection
@@ -482,12 +471,12 @@ fn point_to_line_segment_distance(
   let line_len_sq = vec3f.dot(line_vec, line_vec)
 
   case line_len_sq <. 0.0001 {
-    True -> vec3f.distance(point, start)
+    True -> ffi.distance(point, start)
     False -> {
       let t =
         float.clamp(vec3f.dot(point_vec, line_vec) /. line_len_sq, 0.0, 1.0)
       let projection = vec3f.add(start, vec3f.scale(line_vec, t))
-      vec3f.distance(point, projection)
+      ffi.distance(point, projection)
     }
   }
 }
@@ -507,20 +496,20 @@ fn line_segment_to_line_segment_distance(
   let f = vec3f.dot(d2, r)
 
   case a <. 0.0001 && e <. 0.0001 {
-    True -> vec3f.distance(start_a, start_b)
+    True -> ffi.distance(start_a, start_b)
     False -> {
       case a <. 0.0001 {
         True -> {
           let t = float.clamp(f /. e, 0.0, 1.0)
           let point_on_b = vec3f.add(start_b, vec3f.scale(d2, t))
-          vec3f.distance(start_a, point_on_b)
+          ffi.distance(start_a, point_on_b)
         }
         False -> {
           case e <. 0.0001 {
             True -> {
               let s = float.clamp(vec3f.dot(d1, r) /. a, 0.0, 1.0)
               let point_on_a = vec3f.add(start_a, vec3f.scale(d1, s))
-              vec3f.distance(point_on_a, start_b)
+              ffi.distance(point_on_a, start_b)
             }
             False -> {
               let c = vec3f.dot(d1, r)
@@ -537,7 +526,7 @@ fn line_segment_to_line_segment_distance(
 
               let point_on_a = vec3f.add(start_a, vec3f.scale(d1, s))
               let point_on_b = vec3f.add(start_b, vec3f.scale(d2, t_clamped))
-              vec3f.distance(point_on_a, point_on_b)
+              ffi.distance(point_on_a, point_on_b)
             }
           }
         }
