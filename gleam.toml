@@ -1,5 +1,5 @@
 name = "spatial"
-version = "1.0.0"
+version = "1.0.1"
 description = "Spatial partitioning data structures for efficient 3D queries: octrees, colliders, and spatial algorithms"
 licences = ["MIT"]
 repository = { type = "github", user = "renatillas", repo = "spatial" }
